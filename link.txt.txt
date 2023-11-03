@@ -1,0 +1,2 @@
+GitHub Repository: https://github.com/Aldaaaaa/a433-microservices/tree/proyek-pertama
+GitHub Packages: https://github.com/users/Aldaaaaa/packages/container/package/a433-microservices/item-app

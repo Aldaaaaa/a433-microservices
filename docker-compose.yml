@@ -1,0 +1,19 @@
+version: '3'  # Versi Docker Compose yang digunakan (versi 3).
+
+services:
+  item-app:
+    image: ghcr.io/aldaaaaa/a433-microservices/item-app:v1  # Menggunakan Docker image "ghcr.io/Aldaaaaa/a433-microservices/item-app:v1" untuk layanan "item-app".
+    ports:
+      - "80:8080"  # Mengaitkan port 80 pada host dengan port 8080 di dalam container "item-app".
+    depends_on:
+      - item-db  # Menyatakan bahwa layanan "item-app" bergantung pada layanan "item-db," yang berarti "item-db" akan dijalankan terlebih dahulu sebelum "item-app."
+    restart: always  # Mengatur agar layanan "item-app" selalu di-restart jika terhenti.
+
+  item-db:
+    image: mongo:3  # Menggunakan Docker image "mongo:3" untuk layanan "item-db," yaitu MongoDB versi 3.
+    volumes:
+      - app-db:/data/db  # Membuat volume dengan nama "app-db" yang digunakan untuk menyimpan data database MongoDB.
+    restart: always  # Mengatur agar layanan "item-db" selalu di-restart jika terhenti.
+
+volumes:
+  app-db:  # Mendefinisikan volume dengan nama "app-db" yang digunakan oleh layanan "item-db" untuk menyimpan data database MongoDB.
