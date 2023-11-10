@@ -1,50 +1,39 @@
 version: 2.1
-#apasih gangerti
+
 jobs:
   lint-dockerfile:
     docker:
       - image: hadolint/hadolint:latest
     steps:
       - checkout
-      - run: |
-          find . -name 'Dockerfile*' | xargs hadolint
+      - run: hadolint Dockerfile
 
   test-app:
     docker:
-      - image: golang:latest
+      - image: golang:1.17
     steps:
       - checkout
       - run: go test -v -short --count=1 $(go list ./...)
 
   build-app-karsajobs:
     docker:
-      - image: docker:latest
+      - image: cimg/base:stable
     steps:
       - checkout
       - run: |
           echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa --password-stdin
-          docker build -t ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest .
+          docker build -t aldaaa/karsajobs:latest .
+          docker tag aldaaa/karsajobs:latest ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
           docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
-
-  build-app-karsajobs-ui:
-    docker:
-      - image: docker:latest
-    steps:
-      - checkout
-      - run: |
-          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa --password-stdin
-          docker build -t ghcr.io/aldaaaaa/a433-microservices/karsajobs-ui:latest .
-          docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs-ui:latest
 
 workflows:
   version: 2
-  karsajobs:
+  lint-test-and-build:
     jobs:
       - lint-dockerfile
-      - test-app
-      - build-app-karsajobs
-
-  karsajobs-ui:
-    jobs:
-      - lint-dockerfile
-      - build-app-karsajobs-ui
+      - test-app:
+          requires:
+            - lint-dockerfile
+      - build-app-karsajobs:
+          requires:
+            - test-app
