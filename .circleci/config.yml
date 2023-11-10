@@ -10,7 +10,7 @@ jobs:
 
   build-app-karsajobs-ui:
     docker:
-      - image: cimg/node:latest
+      - image: docker:latest
     steps:
       - checkout
       - run: |
