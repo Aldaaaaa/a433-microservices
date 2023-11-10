@@ -6,61 +6,45 @@ jobs:
       - image: hadolint/hadolint:latest
     steps:
       - checkout
-      - run: hadolint Dockerfile
+      - run: |
+          find . -name 'Dockerfile*' | xargs hadolint
 
-  test-app-karsajobs:
+  test-app:
     docker:
-      - image: golang:1.17
+      - image: golang:latest
     steps:
       - checkout
       - run: go test -v -short --count=1 $(go list ./...)
 
   build-app-karsajobs:
     docker:
-      - image: docker:stable
+      - image: docker:latest
     steps:
       - checkout
-      - run:
-          name: Build and Push Docker Image
-          command: |
-            echo $PASSWORD_DOCKER_HUB | docker login -u <username-docker> --password-stdin
-            docker build -t <username-docker>/karsajobs:latest .
-            docker push <username-docker>/karsajobs:latest
+      - run: |
+          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa --password-stdin
+          docker build -t ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest .
+          docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
 
   build-app-karsajobs-ui:
     docker:
-      - image: docker:stable
+      - image: docker:latest
     steps:
       - checkout
-      - run:
-          name: Build and Push Docker Image for UI
-          command: |
-            echo $PASSWORD_DOCKER_HUB | docker login -u <username-docker> --password-stdin
-            docker build -t <username-docker>/karsajobs-ui:latest .
-            docker push <username-docker>/karsajobs-ui:latest
+      - run: |
+          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa --password-stdin
+          docker build -t ghcr.io/aldaaaaa/a433-microservices/karsajobs-ui:latest .
+          docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs-ui:latest
 
 workflows:
   version: 2
-  build-and-deploy:
+  karsajobs:
     jobs:
-      - lint-dockerfile:
-          context: <your-circleci-context>
-      - test-app-karsajobs:
-          context: <your-circleci-context>
-      - build-app-karsajobs:
-          context: <your-circleci-context>
-          requires:
-            - lint-dockerfile
-            - test-app-karsajobs
+      - lint-dockerfile
+      - test-app
+      - build-app-karsajobs
 
-      - lint-dockerfile-ui:
-          context: <your-circleci-context>
-          filters:
-            branches:
-              only:
-                - karsajobs-ui
-
-      - build-app-karsajobs-ui:
-          context: <your-circleci-context>
-          requires:
-            - lint-dockerfile-ui
+  karsajobs-ui:
+    jobs:
+      - lint-dockerfile
+      - build-app-karsajobs-ui
