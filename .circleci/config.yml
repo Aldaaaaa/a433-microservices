@@ -17,7 +17,7 @@ jobs:
 
   build-app-karsajobs:
     docker:
-      - image: cimg/go:latest
+      - image: docker:latest
     steps:
       - checkout
       - run: |
