@@ -10,20 +10,20 @@ jobs:
 
   test-app:
     docker:
-      - image: golang:1.17
+      - image: golang:latest
     steps:
       - checkout
       - run: go test -v -short --count=1 $(go list ./...)
 
   build-app-karsajobs:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/go:latest
     steps:
       - checkout
       - run: |
-          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa --password-stdin
           docker build -t aldaaa/karsajobs:latest .
           docker tag aldaaa/karsajobs:latest ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
+          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa --password-stdin
           docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
 
 workflows:
@@ -32,4 +32,7 @@ workflows:
     jobs:
       - lint-dockerfile
       - test-app
-      - build-app-karsajobs
+      - build-app-karsajobs:
+          requires:
+            - lint-dockerfile
+            - test-app
