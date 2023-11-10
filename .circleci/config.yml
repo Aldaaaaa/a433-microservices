@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - run: hadolint Dockerfile
-    - run:
+      - run:
           name: Load SSH Key
           command: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
@@ -23,11 +23,13 @@ jobs:
       - image: docker:latest
     steps:
       - checkout
-      - run: |
-          docker build -t aldaaa/karsajobs:latest .
-          docker tag aldaaa/karsajobs:latest ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
-          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa --password-stdin
-          docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
+      - run:
+          name: Build and Push Docker Image
+          command: |
+            docker build -t aldaaa/karsajobs:latest .
+            docker tag aldaaa/karsajobs:latest ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u aldaaaaa --password-stdin
+            docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
 
 workflows:
   version: 2
