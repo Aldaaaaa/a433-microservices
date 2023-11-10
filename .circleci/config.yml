@@ -7,6 +7,9 @@ jobs:
     steps:
       - checkout
       - run: hadolint Dockerfile
+    - run:
+          name: Load SSH Key
+          command: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
   test-app:
     docker:
