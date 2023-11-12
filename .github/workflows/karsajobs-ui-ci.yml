@@ -26,7 +26,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa -p 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
+          docker login ghcr.io -u aldaaaaa -p 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
           docker build -t aldaaa/karsajobs:latest -f Dockerfile .
           docker tag aldaaa/karsajobs:latest ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
           docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
