@@ -1,0 +1,32 @@
+name: CI for karsajobs-ui
+
+on:
+  push:
+    branches:
+      - karsajobs-ui
+
+jobs:
+  lint-dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install hadolint
+        run: sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.7.0/hadolint-Linux-x86_64 && sudo chmod +x /bin/hadolint
+
+      - name: Lint Dockerfile
+        run: hadolint Dockerfile
+
+  build-app-karsajobs-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Build and Push Docker Image
+        run: |
+          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa -p 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
+          docker build -t aldaaa/karsajobs:latest -f Dockerfile .
+          docker tag aldaaa/karsajobs:latest ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
+          docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
