@@ -1,56 +1,74 @@
+# Nama workflow CI untuk proyek karsajobs
 name: CI for karsajobs
 
+# Event trigger: CI akan dijalankan saat ada push ke branch 'karsajobs'
 on:
   push:
     branches:
       - karsajobs
 
+# Definisi jobs untuk CI
 jobs:
+
+  # Job pertama: Lint Dockerfile
   lint-dockerfile:
     runs-on: ubuntu-latest
     steps:
+      # Checkout repository ke runner
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      # Install hadolint untuk melakukan linting Dockerfile
       - name: Install hadolint
         run: sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.7.0/hadolint-Linux-x86_64 && sudo chmod +x /bin/hadolint
 
+      # Jalankan hadolint untuk memeriksa Dockerfile
       - name: Lint Dockerfile
         run: hadolint Dockerfile
 
+  # Job kedua: Test aplikasi menggunakan Go
   test-app:
     runs-on: ubuntu-latest
     steps:
+      # Checkout repository ke runner
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      # Set up lingkungan Go
       - name: Set Up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.15
 
+      # Install dependencies Go menggunakan go mod
       - name: Install Dependencies
         run: go mod download
 
+      # Jalankan unit tests menggunakan perintah 'go test'
       - name: Run Unit Tests
         run: go test -v -short --count=1 $(go list ./...)
 
+  # Job ketiga: Build dan push Docker image
   build-app-karsajobs:
     runs-on: ubuntu-latest
     steps:
+      # Checkout repository ke runner
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      # Set up lingkungan Go
       - name: Set Up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.15
 
+      # Build dan push Docker image ke GitHub Container Registry (GHCR)
       - name: Build and Push Docker Image
         run: |
           echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u Aldaaaaa --password-stdin
           docker build -t ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest -f Dockerfile .
           docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
           docker logout ghcr.io
+        # Set environment variable untuk menyimpan token GHCR dari secrets
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
