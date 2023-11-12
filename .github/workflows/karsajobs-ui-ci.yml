@@ -1,35 +1,46 @@
+# Nama workflow CI untuk proyek karsajobs-ui
 name: CI for karsajobs-ui
 
+# Event trigger: CI akan dijalankan saat ada push ke branch 'karsajobs-ui'
 on:
   push:
     branches:
       - karsajobs-ui
 
+# Definisi jobs untuk CI
 jobs:
+
+  # Job pertama: Lint Dockerfile
   lint-dockerfile:
     runs-on: ubuntu-latest
     steps:
+      # Checkout repository ke runner
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      # Install hadolint untuk melakukan linting Dockerfile
       - name: Install hadolint
         run: sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.7.0/hadolint-Linux-x86_64 && sudo chmod +x /bin/hadolint
 
+      # Jalankan hadolint untuk memeriksa Dockerfile
       - name: Lint Dockerfile
         run: hadolint Dockerfile
 
+  # Job kedua: Build dan push Docker image untuk karsajobs-ui
   build-app-karsajobs-ui:
     runs-on: ubuntu-latest
     steps:
+      # Checkout repository ke runner
       - name: Checkout Repository
         uses: actions/checkout@v2
       
+      # Build dan push Docker image ke GitHub Container Registry (GHCR)
       - name: Build and Push Docker Image
         run: |
           echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u Aldaaaaa --password-stdin
           docker build -t ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest -f Dockerfile .
           docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
           docker logout ghcr.io
+        # Set environment variable untuk menyimpan token GHCR dari secrets
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-      
