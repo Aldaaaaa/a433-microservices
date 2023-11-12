@@ -1,0 +1,54 @@
+name: CI for karsajobs
+
+on:
+  push:
+    branches:
+      - karsajobs
+
+jobs:
+  lint-dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install hadolint
+        run: sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.7.0/hadolint-Linux-x86_64 && sudo chmod +x /bin/hadolint
+
+      - name: Lint Dockerfile
+        run: hadolint Dockerfile
+
+  test-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Install Dependencies
+        run: go mod download
+
+      - name: Run Unit Tests
+        run: go test -v -short --count=1 $(go list ./...)
+
+  build-app-karsajobs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Build and Push Docker Image
+        run: |
+          echo $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 | docker login ghcr.io -u aldaaaaa --password-stdin
+          docker build -t aldaaa/karsajobs:latest -f Dockerfile .
+          docker tag aldaaa/karsajobs:latest ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
+          docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
