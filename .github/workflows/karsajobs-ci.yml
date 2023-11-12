@@ -48,7 +48,9 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          echo $GHCR_TOKEN | docker login ghcr.io -u aldaaaaa --password-stdin
-          docker build -t aldaaa/karsajobs:latest -f Dockerfile .
-          docker tag aldaaa/karsajobs:latest ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
+          echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u Aldaaaaa --password-stdin
+          docker build -t ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest -f Dockerfile .
           docker push ghcr.io/aldaaaaa/a433-microservices/karsajobs:latest
+          docker logout ghcr.io
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
